@@ -20,7 +20,7 @@ Common template elements can also be stored here (perhaps in a subdirectory call
 
 = controllers/ =
 
-Contains the controller objects for the project.  Each file should be named as the controller short name and should contain a class definition for the controller.  All controller class names must begin with `controller_` in order to be automatically dispatched (see VanillaRoutingAndDispatch)
+Contains the controller objects for the project.  Each file should be named as the controller short name and should contain a class definition for the controller.  All controller class names must begin with `controller_` in order to be automatically dispatched (see RoutingAndDispatch)
 
 The `controllers/` directory can also contain files related to controllers, like a custom parent class that your controllers will inherit from if necessary.
 
