@@ -29,6 +29,7 @@ class controller_example {
 This next controller defines two methods, which can be invoked as
  * `/person/delete/`_idvalue_
  * `/person/create`
+
 {{{
 class controller_person {
    public function delete_($personid=NULL) {
