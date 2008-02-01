@@ -1,0 +1,22 @@
+#summary Designing Your Database for Maximum Ease of use
+
+With a little forethought in the design of your database, vanilla's automatic schema scanning will make quick work of maintaining your models' mapping to the database so you can concentrate on the customized parts of the models.
+
+There are three rules for the schema that should be followed for the best results:
+ * tables should be named in the singular, like `product`, `customer`, and `box`; avoid pluralized table names like `products`, `customers`, or `boxes`.
+ * primary keys should be named merely `id`, and can be either integer auto-increment or strings
+ * foreign keys should be named to end with the table name followed by `_id`.  If the `order` table references a customer, then it should have a column named `customer_id`
+
+The system automatically figures out various one-to-one, one-to-many and many-to-many mappings and provides easy on-demand-loading access to related rows/objects.
+
+There are three kinds of fields available on a model:
+ # _natural fields_ - those fields listed in the database
+ # _virtual fields_ - fields that are created automatically based on relational mappings.
+ # _generated fields_ - fields that are created by property access overloading methods on the model
+
+
+It is recommended you store dates in the database as integers (using functions like `unix_timestamp()` in mysql).  This provides ease of use when setting values (the result of the PHP function `time()` can be used without conversion to a database specific datetime formatted string) and this leaves the printing of dates and times up to the template (where it belongs, as part of the view/presentation layer) using Smarty modifiers like `date_format` or the PHP function `strftime`.
+
+
+The built in data inspector extension can take "hints" to make understanding models and database schema easier.
+ * naming the integer datetime columns to start with `date_` or end with `_at` or `_date` will tell the data inspector to format the data as a date.
