@@ -58,6 +58,9 @@ Any one-to-many mappings are `ModelCollections`, which are iteratable just like 
 
 If a primary key is found that is named `TABLE_id`, then a one-to-one mapping virtual column is made on the model `TABLE` that references the referring row.
 
+Virtual fields are not saved to the database automatically when their parent object is saved, they must be saved explicitly.
+
+
 ==Generated Fields==
 
 Generated fields are the result of property access overloading on the model class.  As far as the code is concerned, these look like normal properties, albeit read-only.
