@@ -1,22 +1,22 @@
-#summary using the automated schema scanning functionality
+#summary creating models and using the automated schema scanning functionality
 
 vanilla includes a system that automatically scans your database schema and creates base model objects that map to each table, filling in the relationships.
 
-By following the rules outlined in DatabaseSchemaDesign, vanilla can make quick work of creating the necessary model classes that allow straightfoward manipulation to the database without manually writing a lot of database queries.
+By following the rules outlined in DatabaseSchemaDesign, vanilla can make quick work of creating the necessary model classes that allow straightforward manipulation to the database without manually writing a lot of database queries.
 
 = Objects and Classes = 
 
-== SchemaDatabase ==
+== !SchemaDatabase ==
 
-== SchemaTable ==
+== !SchemaTable ==
 
-== SchemaColumn ==
+== !SchemaColumn ==
 
-== ModelBase ==
+== !ModelBase ==
 
 == Model ==
 
-== ModelCollection ==
+== !ModelCollection ==
 
 = Using Models =
 
@@ -82,7 +82,7 @@ Interesting fields are:
 
 = Deletion =
 
-Because deletion is a destructive operation, the base `Model` class does not currently provide direct support for deleting rows.  You can add a row deletion method by defining your model directy and adding a delete method like the following:
+Because deletion is a destructive operation, the base `Model` class does not currently provide direct support for deleting rows.  You can add a row deletion method by defining your model directly and adding a delete method like the following:
 
 {{{
 class myModel extends Model {
@@ -97,3 +97,7 @@ class myModel extends Model {
 }}}
 
 = Optimization =
+
+Numerous problems with PHP's object model (see [http://bugs.php.net/bug.php?id=30934 Bug #30934 Special keyword 'self' inherited in child classes] for one case) force some pretty hairy code to be run when the `::find` or `::find_first` methods are called.  This is not normally a problem, but may sit uncomfortably with people who want to avoid a potentially nasty performance hit that exists to overcome the problems with PHP's inheritance implementation.
+
+Model classes automatically created by `SchemaDatabase` already have this optimization, but model classes you create do not.  If you insert the block of code from the file [http://code.google.com/p/vanilla-mvc/source/browse/trunk/ModelCommonCode.php ModelCommonCode.php] at the top of your model class definition, you can avoid the expensive regular expression search that results.
