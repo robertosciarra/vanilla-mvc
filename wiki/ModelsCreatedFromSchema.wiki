@@ -28,6 +28,14 @@ The first argument to the `SchemaDatabase` constructor, `'databasename'`, will b
 
 == !SchemaDatabase ==
 
+Has three public methods.
+
+ * the constructor.  Takes three arguments, the name of the database, a data handle (as returned by `DBI::connect`) and an array of options.  The allowed options are:
+   * `ignore` : a comma delimited list of table names to ignore
+   * `ignorere` : a string containing a PCRE regular expression.  if this regular expression matches a table name, that table is ignored
+ * `::dump()` - instance method, prints a description of the database schema found
+ * `::init($dbh)` - the database only has to be scanned once (unless the structure changes), and scanning can be a relatively expensive operation.  After creating the `SchemaDatabase` object, you can serialize it, cache it, and on later invocations restore it.  After unserializing it, it will need access to the database, so you can use this function to initialize the database handle (as returned from `DBI::connect`) the `SchemaDatabase` should use.
+
 == !SchemaTable ==
 
 == !SchemaColumn ==
@@ -49,7 +57,7 @@ The first argument to the `SchemaDatabase` constructor, `'databasename'`, will b
 
 == Notes about Caching ==
 
-vanilla tries to create only one instance of an object that maps to any given row, so updates to the same row via different references show the proper, same data.  It does this by keeping a reference to each object that is created 
+vanilla tries to create only one instance of an object that maps to any given row, so updates to the same row via different references show the proper, same data.  It does this by keeping a reference to each object that is created and if the same row is read again, returning the same object.
 
 = Extending Models =
 
