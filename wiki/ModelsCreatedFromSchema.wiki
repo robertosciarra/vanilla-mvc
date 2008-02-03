@@ -4,6 +4,26 @@ vanilla includes a system that automatically scans your database schema and crea
 
 By following the rules outlined in DatabaseSchemaDesign, vanilla can make quick work of creating the necessary model classes that allow straightforward manipulation to the database without manually writing a lot of database queries.
 
+= Initialization =
+
+In a file in the `setup/` directory, you need to:
+ # connect to your database using `DBI::connect` (see DatabaseAbstractionAPI)
+ # load all models explictly defined in the `models/` directory
+ # create a `SchemaDatabase` object that map the explicitly created models to tables and implicitly create additional models for the remaining tables
+
+The vanilla idiom for this is along these lines (in file `setup/database.setup.php`, for example):
+{{{
+$dbh = DBI::connect('dbi:sqlite3:dbname=/some/file');
+
+lib::load:model_definitions();
+
+$opts = array();
+$opts['ignore'] = 'comma,delimited,list,of,tables,to,ignore'; # optional
+$opts['ignorere'] = '/^(temp_|junk_)/'; # optional, tables that match this regular expression will be ignored
+$schema = new SchemaDatabase('databasename', $dbh, $opts);
+}}}
+The first argument to the `SchemaDatabase` constructor, `'databasename'`, will be used to scan the database for metadata and build fully qualified absolute names of tables (however, it is not currently heavily used and does not apply for some database types -- it is required when interfacing with a mysql database).
+
 = Objects and Classes = 
 
 == !SchemaDatabase ==
@@ -28,6 +48,8 @@ By following the rules outlined in DatabaseSchemaDesign, vanilla can make quick 
 
 
 == Notes about Caching ==
+
+vanilla tries to create only one instance of an object that maps to any given row, so updates to the same row via different references show the proper, same data.  It does this by keeping a reference to each object that is created 
 
 = Extending Models =
 
@@ -98,6 +120,10 @@ class myModel extends Model {
 
 = Optimization =
 
-Numerous problems with PHP's object model (see [http://bugs.php.net/bug.php?id=30934 Bug #30934 Special keyword 'self' inherited in child classes] for one case) force some pretty hairy code to be run when the `::find` or `::find_first` methods are called.  This is not normally a problem, but may sit uncomfortably with people who want to avoid a potentially nasty performance hit that exists to overcome the problems with PHP's inheritance implementation.
+Numerous problems with PHP's object model (see [http://bugs.php.net/bug.php?id=30934 Bug #30934 Special keyword 'self' inherited in child classes] and [http://bugs.php.net/bug.php?id=12622 Bug #12622 scope of $this and static functions] for two such cases) force some pretty hairy code to be run when the `::find` or `::find_first` methods are called.  This is not normally a problem, but may sit uncomfortably with people who want to avoid a potentially nasty performance hit that exists to overcome the problems with PHP's inheritance implementation.
 
-Model classes automatically created by `SchemaDatabase` already have this optimization, but model classes you create do not.  If you insert the block of code from the file [http://code.google.com/p/vanilla-mvc/source/browse/trunk/ModelCommonCode.php ModelCommonCode.php] at the top of your model class definition, you can avoid the expensive regular expression search that results.
+When `::find` (or `::find_first`) is called, `Model::find` looks up the call stack for the file and line that called it.  It then searches this file (using `preg_match`) for the specific call signature to figure out the model class name that it was called on.  This allows you to program naturally using static method invocation (`company::find(...)`) without requiring an existing instance of the model class to call on to get the proper scope.  See [http://code.google.com/p/vanilla-mvc/source/browse/trunk/Model.php the `_find_static_invoking_class` function at the end of the Model.php file] for the exact implementation.
+
+Model classes automatically created by `SchemaDatabase` already have this optimization, but model classes you create do not.  If you insert the block of code from the file [http://code.google.com/p/vanilla-mvc/source/browse/trunk/ModelCommonCode.php ModelCommonCode.php] at the top of your model class definition, you can avoid the expensive regular expression search that results.  These functions make the calls to the Model implementation directly, because once defined on the model class itself, they have direct access to the static class property `$__table__`.
+
+Unfortunately PHP does not have parse/compile-time code inclusion functionality that works at the class-definition scope, otherwise one could work around this with a C-preprocessor style `#include` at the top of the class definition.
