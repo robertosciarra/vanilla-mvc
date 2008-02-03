@@ -15,7 +15,7 @@ The vanilla idiom for this is along these lines (in file `setup/database.setup.p
 {{{
 $dbh = DBI::connect('dbi:sqlite3:dbname=/some/file');
 
-lib::load:model_definitions();
+lib::load_model_definitions();
 
 $opts = array();
 $opts['ignore'] = 'comma,delimited,list,of,tables,to,ignore'; # optional
