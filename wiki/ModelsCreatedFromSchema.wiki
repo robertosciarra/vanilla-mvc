@@ -1,0 +1,99 @@
+#summary using the automated schema scanning functionality
+
+vanilla includes a system that automatically scans your database schema and creates base model objects that map to each table, filling in the relationships.
+
+By following the rules outlined in DatabaseSchemaDesign, vanilla can make quick work of creating the necessary model classes that allow straightfoward manipulation to the database without manually writing a lot of database queries.
+
+= Objects and Classes = 
+
+== SchemaDatabase ==
+
+== SchemaTable ==
+
+== SchemaColumn ==
+
+== ModelBase ==
+
+== Model ==
+
+== ModelCollection ==
+
+= Using Models =
+
+== Finding Matching Rows ==
+
+== Updating Rows ==
+
+== Saving Data ==
+
+
+== Notes about Caching ==
+
+= Extending Models =
+
+Due to limitations in PHP's object implementation, extending classes and calling extended classes in a static context is filled with problems.  vanilla attempts to get around this to let you program in a more natural way, with the cost that some additional setup is required for the models you custom create.
+
+Model objects are fully functional, created automatically by `SchemaDatabase` when the database schema is scanned.  However, should you want to extend their functionality, you can instead create the model yourself.  A simple model subclass that offers no additional functionality takes the following form:
+{{{
+class myModel extends Model {
+    public static $__table__;
+}}}
+
+Only the `$__table__` public static class variable is required (this can not, unfortunately, be defined statically on the `Model` class and be expected to be static in the subclasses).
+
+New methods can then be added to this model that extend, or override, base `Model` functionality.  Most commonly, methods for creating generated fields (see DatabaseSchemaDesign) and new `::find` methods will be added.
+
+{{{
+class company extends Model {
+    public static $__table__;
+
+    public function __get_age() {
+        return time() - $this->creation_date;
+    }
+
+    public function __set_age($ageseconds) {
+        $this->creation_date = time() - $ageseconds;
+        $this->save();
+        $this->_refresh();
+    }
+
+    public function find_by_age($maxage) {
+        return company::find(array('creation_date'=>cond::gt(time()-$maxage)));
+    }
+}
+}}}
+
+The above block creates a generated field that can be accessed as `->age`, creates an accessor method for the fake `age` field that sets the natural (real) field named `creation_date`, and provides a new `::find_by_age` method that filters companies on a calculated condition.
+
+vanilla does not currently support dynamic `::find` methods that filter by field names given in the method name (like `::find_by_name`).  You will have to define those methods if you desire that kind of functionality.  However, these are rarely necessary because of the support the default `::find` method has for filtering on specific fields.
+
+
+= Useful Internal Fields =
+
+ * `$this->_t` - the `SchemaTable` object that this model is based on
+ * `$this->_db` - the `SchemaDatabase` object that this model uses
+
+There may be times that you need to access the table name or the database handle (created to connect to the database) directly, such as when doing direct database manipulation or when you want to run a custom `::find` function for your model.
+
+Interesting fields are:
+ * `$this->_t->name` and `$this->_t->nameQ` - the actual name of the table this model maps to.  The first is just the raw name, and the second is already quoted (using the database's label quoting method) ready for insertion into queries.
+ * `$this->_t->pk` - the name of the primary key column for the table
+ * `$this->_db->dbhandle` - the database connection object returned by `DBI::connect` (see DatabaseAbstractionAPI`) and passed to the `SchemaDatabase` constructor.
+
+= Deletion =
+
+Because deletion is a destructive operation, the base `Model` class does not currently provide direct support for deleting rows.  You can add a row deletion method by defining your model directy and adding a delete method like the following:
+
+{{{
+class myModel extends Model {
+    public static $__table__;
+
+    public function delete_() {
+        $q = sprintf('delete from %s where %s = ?', $this->_t->nameQ, $this->_t->pk);
+        $sth = $this->_db->dbhandle->prepare($q);
+        $sth->execute($this->id);
+    }
+}
+}}}
+
+= Optimization =
