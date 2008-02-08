@@ -74,7 +74,7 @@ http://your-server/~USER/vandemo1/
 You'll get a 404 error page saying the view isn't found.
 {{{
 404
-/~abakun/x/vandemo1/ not found (view "example/list.tpl" not found)
+/~USER/vandemo1/ not found (view "example/list.tpl" not found)
 }}}
 Our controller is working, but has nothing to display yet.
 
@@ -101,10 +101,11 @@ Take notice of the content that the following URLs serve:
  * {{{http://your-server/~USER/vandemo1/example}}}
  * {{{http://your-server/~USER/vandemo1/example/list}}}
  * {{{http://your-server/~USER/vandemo1/example/list/data}}}
-}}}
 The first shows an error page:
 
 [http://vanilla-mvc.googlecode.com/svn/wiki/images/vandemo1-404error.png]
+
+(The message about not being able to find a controller named errorpage is because vanilla allows you to customize and use specific views when errors are generated).
 
 Without an explicit method specified, vanilla defaults to trying to find a {{{::index}}} method on the controller.  We didn't define one in this example.
 
