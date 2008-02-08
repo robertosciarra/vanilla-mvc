@@ -5,6 +5,7 @@ This document is meant to demonstrate the following features of vanilla:
  * running the setup script
  * creating a controller
  * creating a view template
+ * receiving additional content from the URL (REST-style invocation)
  * processing a simple form
 
 = Directory setup =
@@ -27,6 +28,9 @@ $ sh ./vanilla/configure.sh
 Usage: ./vanilla/configure.sh <document root>
 $ sh ./vanilla/configure.sh /~USER/vandemo1
 }}}
+
+If you are serving your application out of the web server's {{{DocumentRoot}}}, you will want to specify {{{/}}} as the argument.  There is also a way to invoke vanilla from the web server configuration files, by using the {{{Alias}}} Apache directive in {{{httpd.conf}}}, without using {{{mod_rewrite}}}.  This may be faster.
+
 You should now have the following files and directories:
  * .htaccess
  * controllers/
@@ -90,8 +94,32 @@ http://your-server/~USER/vandemo1/
 }}}
 You should see a friendly greeting.
 
-Take notice of what the content that the following URLs serve:
+= Receiving additional content from the URL =
+
+
+Take notice of the content that the following URLs serve:
  * {{{http://your-server/~USER/vandemo1/example}}}
  * {{{http://your-server/~USER/vandemo1/example/list}}}
  * {{{http://your-server/~USER/vandemo1/example/list/data}}}
 }}}
+The first shows an error page:
+
+[http://vanilla-mvc.googlecode.com/svn/wiki/images/vandemo1-404error.png]
+
+Without an explicit method specified, vanilla defaults to trying to find a {{{::index}}} method on the controller.  We didn't define one in this example.
+
+The last two URLs invoke the {{{example::list_}}} method.  These could be used to invoke this controller and method if we had a different value for the {{{$_SERVER['default_controller']}}} setting in {{{setup/global_conf.php}}}.  For the root page of a site, it may be wise to name the controller and method {{{homepage::index}}}, {{{root::index}}} or {{{index::index}}}, setting a matching value for {{{$_SERVER['default_controller']}}} in {{{setup/global_conf.php}}}.
+
+Anything after the method name in the URL is received by the method as separate arguments.  The method can access these arguments either with a call to [http://www.php.net/func_get_args func_get_args()] or by listing argument variables in the method definition.  If we change the {{{::list_}}} method to:
+{{{
+    public function list_($audience=NULL) {
+        if (!isset($audience)) $audience = 'world';
+        $this->view->assign('audience', $audience);
+        $this->viewname = 'example/list.tpl';
+    }
+}}}
+Then the third part of the URL after {{{/list/}}} will be available to the method in the {{{$audience}}} argument.  It is wise to define these arguments as optional to avoid PHP warnings about being called without arguments.
+
+The above change to the {{{::list_}}} method will allow a new audience string to be passed and printed by the view template.  Try it with different strings:
+ * {{{http://your-server/~USER/vandemo1/example/list/universe}}}
+ * {{{http://your-server/~USER/vandemo1/example/list/user}}}
