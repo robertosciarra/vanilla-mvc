@@ -31,7 +31,7 @@ views/example/list.tpl:
 Hello, {$audience}!
 }}}
 
-The rest of this documents explains the details and goes over setting up the vanilla environment.
+The rest of this document explains the details and goes over setting up the vanilla environment.
 
 = Directory setup =
 
