@@ -1,0 +1,97 @@
+#summary creating a simple hello world app
+#labels Featured
+
+This document is meant to demonstrate the following features of vanilla:
+ * running the setup script
+ * creating a controller
+ * creating a view template
+ * processing a simple form
+
+= Directory setup =
+
+First, create a new directory to store your application.  For the purposes of this demo, we'll assume you have a {{{public_html}}} area in your home directory that is accessed as {{{/~USER/}}}.
+{{{
+$ mkdir -p ~/public_html/vandemo1
+}}}
+Now, you'll need to check out the vanilla source code into a subdirectory named {{{vanilla}}}:
+{{{
+$ cd ~/public_html/vandemo1
+$ svn checkout http://vanilla-mvc.googlecode.com/svn/trunk/ vanilla
+}}}
+
+= Running the setup script =
+
+From the directory that *contains* the {{{vanilla}}} directory, run the script {{{vanilla/configure.sh}}}.  It takes one argument, the web accessible path your application will live in.  The configure script uses this to setup a default {{{.htaccess}}} file
+{{{
+$ sh ./vanilla/configure.sh
+Usage: ./vanilla/configure.sh <document root>
+$ sh ./vanilla/configure.sh /~USER/vandemo1
+}}}
+You should now have the following files and directories:
+ * .htaccess
+ * controllers/
+ * index.html
+ * media/
+ * media/.htaccess
+ * models/
+ * setup/
+ * setup/README
+ * setup/global_conf.php
+ * setup/template_conf.php
+ * setup/smarty_custom.php
+ * views/
+
+= Creating a controller =
+
+The default controller, as listed in the {{{setup/global_conf.php}}} file, is {{{example::list}}}.
+
+Now create a controller file in the {{{controller/}}} directory.  vanilla automatically routes requests to controller classes in the {{{controllers/}}} directory (however, you can explicitly list routes using another method also), based on the the file and class names.  So to route the {{{/example}}} URL, create {{{controllers/example.php}}}:
+{{{
+<?php
+
+class controller_example extends base_controller {
+
+    public function list_() {
+        $this->view->assign('audience', 'world');
+        $this->viewname = 'example/list.tpl';
+    }
+}
+}}}
+
+A couple of things to note:
+ * the class must be in a file named {{{controllers/example.php}}} and must contain a single class named {{{controller_example}}}.  Unless you want to fully customize the controller, it should be a subclass of {{{base_controller}}} (which is defined in [http://code.google.com/p/vanilla-mvc/source/browse/trunk/base_controller.php vanilla/base_controller.php]).  This class naming scheme is designed to not interfere with model class names.
+ * the method we'll be invoking is named {{{list_}}}, with the trailing underscore, to avoid conflicts with PHP keywords.  The trailing underscore *is not required* to appear in the URL, nor is it required when the method name does not potentially conflict with a PHP keyword.
+ * assigning to {{{$this->viewname}}} sets the template file to use for the view.  This is a path relative to the {{{views/}}} directory.
+
+Switching to a web browser, if you pull up the URL:
+{{{
+http://your-server/~USER/vandemo1/
+}}}
+You'll get a 404 error page saying the view isn't found.
+{{{
+404
+/~abakun/x/vandemo1/ not found (view "example/list.tpl" not found)
+}}}
+Our controller is working, but has nothing to display yet.
+
+If you comment out the line that assigns to {{{$this->viewname}}}, note that a default template file is looked for based on the controller name (which doesn't exist yet either).
+
+= Creating a view template =
+
+Next we want to create the template file to be used for the view.  vanilla comes pre-packaged with [http://smarty.php.net/ Smarty Templates].  I find it is a good idea to keep templates specific to a controller in a subdirectory that matches the name of the controller, and use individual files that match the method being invoked.  You don't have to use subdirectories, you can put the view files right in the {{{views/}}} directory itself, or in differently named subdirectories; however, this may make it more difficult to manage.
+
+Create the file in the {{{views/}}} directory that the controller references: {{{views/example/list.tpl}}}.  You'll need to make the {{{views/example/}}} directory first, of course.   Give it the following contents:
+{{{
+Hello, {$audience}!
+}}}
+Now if you view the URL
+{{{
+http://your-server/~USER/vandemo1/
+}}}
+You should see a friendly greeting.
+
+Take notice of what the content that the following URLs serve:
+ * {{{http://your-server/~USER/vandemo1/example}}}
+ * {{{http://your-server/~USER/vandemo1/example/list}}}
+ * {{{http://your-server/~USER/vandemo1/example/list/data}}}
+}}}
