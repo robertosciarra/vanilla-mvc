@@ -124,3 +124,51 @@ Then the third part of the URL after {{{/list/}}} will be available to the metho
 The above change to the {{{::list_}}} method will allow a new audience string to be passed and printed by the view template.  Try it with different strings:
  * {{{http://your-server/~USER/vandemo1/example/list/universe}}}
  * {{{http://your-server/~USER/vandemo1/example/list/user}}}
+
+= Handling a simple form =
+
+Let's add a simple, one element form to our view.  Edit {{{views/example/list.tpl}}}:
+{{{
+Hello, {$audience}!
+
+<form action="{$self}" method="GET">
+Enter your name:
+<input type="text" name="astring" value="{$audience}" />
+<button type="submit">submit</button>
+</form>
+}}}
+
+This will display a GET form on the page.  We'll also need to modify the controller to set the {{{$self}}} template variable, and to do something with the submitted form data.
+{{{
+<?php
+
+class controller_example extends base_controller {
+
+    public function list_($audience=NULL) {
+        if (!isset($audience)) $audience = 'world';
+        if (isset($_GET['astring'])) $audience = $_GET['astring']; # NEW
+        $this->view->assign('audience', $audience);
+
+        $this->view->assign('self', new url($this, 'list')); # NEW
+
+        $this->viewname = 'example/list.tpl';
+    }
+}
+}}}
+We've added the lines marked {{{# NEW}}}.  The first one looks for a {{{$_GET}}} variable named {{{astring}}} and if it was provided, assigns it to audience (overriding the default and what was passed via the {{{$audience}}} function argument).
+
+The second one creates a new template variable, {{{$self}}} that is a URL object that points back to this controller and method.  The form then uses this as the action attribute.  Of course a different URL could be used, to have the submitted form be processed by a different URL.  A URL object is converted to a string automatically when used in the template.
+
+You may notice that the URL actually put into the action attribute does not explicitly list the {{{/example/list}}} portion.  This is because vanilla tries to reduce references to the default controller to a canonical form.
+
+A common vanilla idiom for generating self-referential URLs is:
+{{{
+public function m($arg1=NULL, $arg2=NULL) {
+    ...
+    $request = func_get_args();
+    $selfurl = new url($request);
+    ...
+}
+}}}
+
+vanilla actually contains complex form building, verification/validation, and processing support, allowing things like multiple forms to exist on the same page, forms to be handled transparently by related models, and easy integration of a form into the template HTML.
