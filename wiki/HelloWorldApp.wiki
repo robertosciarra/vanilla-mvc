@@ -8,6 +8,31 @@ This document is meant to demonstrate the following features of vanilla:
  * receiving additional content from the URL (REST-style invocation)
  * processing a simple form
 
+= It's simple =
+
+Two files are all that is necessary.
+
+controllers/example.php:
+{{{
+<?php
+
+class controller_example extends base_controller {
+
+    public function list_() {
+        # merely an example of passing a variable to a template
+        $this->view->assign('audience', 'world');
+        $this->viewname = 'example/list.tpl';
+    }
+}
+}}}
+
+views/example/list.tpl:
+{{{
+Hello, {$audience}!
+}}}
+
+The rest of this documents explains the details and goes over setting up the vanilla environment.
+
 = Directory setup =
 
 First, create a new directory to store your application.  For the purposes of this demo, we'll assume you have a {{{public_html}}} area in your home directory that is accessed as {{{/~USER/}}}.
