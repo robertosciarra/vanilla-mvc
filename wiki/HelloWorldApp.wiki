@@ -155,9 +155,9 @@ class controller_example extends base_controller {
     }
 }
 }}}
-We've added the lines marked {{{# NEW}}}.  The first one looks for a {{{$_GET}}} variable named {{{astring}}} and if it was provided, assigns it to audience (overriding the default and what was passed via the {{{$audience}}} function argument).
+We've added the lines marked {{{# NEW}}}.  The first one looks for a {{{$_GET}}} variable named {{{astring}}} and if it was provided, assigns it to {{{$audience}}} (overriding the default and what was passed via the {{{$audience}}} function argument).
 
-The second one creates a new template variable, {{{$self}}} that is a URL object that points back to this controller and method.  The form then uses this as the action attribute.  Of course a different URL could be used, to have the submitted form be processed by a different URL.  A URL object is converted to a string automatically when used in the template.
+The second one creates a new template variable, {{{$self}}} that is a URL object that points back to this controller and method.  The form then uses this as the action attribute.  Of course a different URL could be used, to have the submitted form be processed by a different controller.  A URL object is converted to a string automatically when used in the template.
 
 You may notice that the URL actually put into the action attribute does not explicitly list the {{{/example/list}}} portion.  This is because vanilla tries to reduce references to the default controller to a canonical form.
 
