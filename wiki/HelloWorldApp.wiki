@@ -191,7 +191,7 @@ A common vanilla idiom for generating self-referential URLs is:
 public function m($arg1=NULL, $arg2=NULL) {
     ...
     $request = func_get_args();
-    $selfurl = new url($request);
+    $selfurl = new url($this, 'm', $request);
     ...
 }
 }}}
