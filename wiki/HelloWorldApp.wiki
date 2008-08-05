@@ -107,7 +107,7 @@ If you comment out the line that assigns to {{{$this->viewname}}}, note that a d
 
 = Creating a view template =
 
-Next we want to create the template file to be used for the view.  vanilla comes pre-packaged with [http://smarty.php.net/ Smarty Templates].  I find it is a good idea to keep templates specific to a controller in a subdirectory that matches the name of the controller, and use individual files that match the method being invoked.  You don't have to use subdirectories, you can put the view files right in the {{{views/}}} directory itself, or in differently named subdirectories; however, this may make it more difficult to manage.
+Next we want to create the template file to be used for the view.  vanilla comes pre-packaged with [http://www.smarty.net/ Smarty Templates].  I find it is a good idea to keep templates specific to a controller in a subdirectory that matches the name of the controller, and use individual files that match the method being invoked.  You don't have to use subdirectories, you can put the view files right in the {{{views/}}} directory itself, or in differently named subdirectories; however, this may make it more difficult to manage.
 
 Create the file in the {{{views/}}} directory that the controller references: {{{views/example/list.tpl}}}.  You'll need to make the {{{views/example/}}} directory first, of course.   Give it the following contents:
 {{{
