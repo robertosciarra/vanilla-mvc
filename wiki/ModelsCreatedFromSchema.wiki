@@ -20,7 +20,7 @@ lib::load_model_definitions();
 $opts = array();
 $opts['ignore'] = 'comma,delimited,list,of,tables,to,ignore'; # optional
 $opts['ignorere'] = '/^(temp_|junk_)/'; # optional, tables that match this regular expression will be ignored
-$tables = $dbhs->tables();
+$tables = $dbh->tables();
 Model::init_examine($tables, $opts, $dbh);
 Model::init_create_models();
 }}}
