@@ -20,9 +20,9 @@ lib::load_model_definitions();
 $opts = array();
 $opts['ignore'] = 'comma,delimited,list,of,tables,to,ignore'; # optional
 $opts['ignorere'] = '/^(temp_|junk_)/'; # optional, tables that match this regular expression will be ignored
-$schema = new SchemaDatabase('databasename', $dbh, $opts);
+$tables = $dbhs->tables();
+$schema = Model::init_examine($tables, $opts, $dbh);
 }}}
-The first argument to the `SchemaDatabase` constructor, `'databasename'`, will be used to scan the database for metadata and build fully qualified absolute names of tables (however, it is not currently heavily used and does not apply for some database types -- it is required when interfacing with a mysql database).
 
 = Objects and Classes = 
 
