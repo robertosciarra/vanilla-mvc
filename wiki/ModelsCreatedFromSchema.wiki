@@ -15,6 +15,17 @@ The vanilla idiom for this is along these lines (in file `setup/database.setup.p
 {{{
 $dbh = DBI::connect('dbi:sqlite3:dbname=/some/file');
 
+# include the base model code.  There are three implementations.  dbmodels/3/ is
+# the most efficient and reliable version.
+require_once "vanilla/dbmodels/3/setup.php";
+
+# all models should/will subclass an abstract base class named Model.
+# the dbmodels define an abstract class AbstractModel which can be subclassed
+# to provide custom functionality across all models.  If custom functionality 
+# is not necessary, we just define an empty abstract class named Model
+# that inherits from the common AbstractModel class.
+abstract class Model extends AbstractModel { }
+
 lib::load_model_definitions();
 
 $opts = array();
